@@ -36,6 +36,78 @@ public class Cube {
 		}
 	};
 
+	static String[][][] cubeColor = {
+		{
+			{"w","w","w"},
+			{"w","W","w"},
+			{"w","w","w"}
+		},
+		{
+			{"g","g","g"},
+			{"g","G","g"},
+			{"g","g","g"}
+		},
+		{
+			{"r","r","r"},
+			{"r","R","r"},
+			{"r","r","r"}
+		},
+		{
+			{"b","b","b"},
+			{"b","B","b"},
+			{"b","b","b"}
+		},
+		{
+			{"o","o","o"},
+			{"o","O","o"},
+			{"o","o","o"}
+		},
+		{
+			{"y","y","y"},
+			{"y","Y","y"},
+			{"y","y","y"}
+		}
+	};
+
+	static String[][][] cubeColorCorners = {
+		/** The order of the colors goes like this
+		 * (Face)(Top/Bottom Face)(Front/Back)(Left/Right)
+		 * so the green white red corner on the red face is
+		 * rwg 
+		 * 
+		*/
+		{
+			{"wbo","wb","wbr"},
+			{"wo","W","wr"},
+			{"wgo","wg","wgr"}
+		},
+		{
+			{"gwo","gw","gwr"},
+			{"go","G","gr"},
+			{"gyo","gy","gyr"}
+		},
+		{
+			{"rwg","rw","rwb"},
+			{"rg","R","rb"},
+			{"ryg","ry","ryb"}
+		},
+		{
+			{"bwr","bw","bwo"},
+			{"br","B","bo"},
+			{"byr","by","byo"}
+		},
+		{
+			{"owb","ow","owg"},
+			{"ob","O","og"},
+			{"oyb","oy","oyg"}
+		},
+		{
+			{"ygo","yg","ygr"},
+			{"yo","Y","yr"},
+			{"ybo","yb","ybr"}
+		}
+	};
+
 	/**Prints a given face of the cube
 	 * 
 	 * @param face a two dimensional array
@@ -112,14 +184,14 @@ public class Cube {
 			sides[2] = 5;
 			sides[3] = 2;
 			for (int i = 0; i < 4; i++){
-				if (i==0||i == 3){
+				if (i==0||i == 1){
 					sideRowIndex[i] = 2;
-					if(i==3){
+					if(i==1){
 						transposeSide[i]=true;
 					}
 				} else{
 					sideRowIndex[i] = 0;
-					if(i==1){
+					if(i==3){
 						transposeSide[i]=true;
 					}
 				}
@@ -171,6 +243,7 @@ public class Cube {
 					sideRowIndex[i] = 2;
 				}
 			}
+			break;
 			case 5:
 				for (int i = 0; i < 4; i++){
 					sides[i] = 4-i;
@@ -189,12 +262,52 @@ public class Cube {
 			c[sides[1]][sideRowIndex[1]] = c[sides[2]][sideRowIndex[2]];
 			c[sides[2]][sideRowIndex[2]] = c[sides[3]][sideRowIndex[3]];
 			c[sides[3]][sideRowIndex[3]] = temp;
+			switch(index){
+				case 0,5:
+				break;
+				case 1:
+				c[0][2]= reverseRow(c[0][2]);
+				c[5][0]= reverseRow(c[5][0]);
+				break;
+				case 2:
+				c[3][0]= reverseRow(c[3][0]);
+				c[5][2]= reverseRow(c[5][2]);
+				break;
+				case 3:
+				c[2][2]= reverseRow(c[2][2]);
+				c[4][0]= reverseRow(c[4][0]);
+				break;
+				case 4:
+				c[0][0]= reverseRow(c[0][0]);
+				c[3][2]= reverseRow(c[3][2]);
+				break;
+			}
 		} else{
 			temp = c[sides[3]][sideRowIndex[3]];
 			c[sides[3]][sideRowIndex[3]] = c[sides[2]][sideRowIndex[2]];
 			c[sides[2]][sideRowIndex[2]] = c[sides[1]][sideRowIndex[1]];
 			c[sides[1]][sideRowIndex[1]] = c[sides[0]][sideRowIndex[0]];
 			c[sides[0]][sideRowIndex[0]] = temp;
+			switch(index){
+				case 0,5:
+				break;
+				case 1:
+				c[2][0]= reverseRow(c[2][0]);
+				c[4][2]= reverseRow(c[4][2]);
+				break;
+				case 2:
+				c[3][0]= reverseRow(c[3][0]);
+				c[0][2]= reverseRow(c[0][2]);
+				break;
+				case 3:
+				c[0][0]= reverseRow(c[0][0]);
+				c[5][2]= reverseRow(c[5][2]);
+				break;
+				case 4:
+				c[3][2]= reverseRow(c[3][2]);
+				c[5][0]= reverseRow(c[5][0]);
+				break;
+			}
 		}
 		for(int i = 0; i < transposeSide.length; i++){
 			if(transposeSide[i]){
@@ -447,15 +560,28 @@ public class Cube {
 	 * @return The transpose of face.
 	 */
 	public static String[][] transposeFace(String[][] face){
-		String[][] temp = new String[3][3];
-		for (int i = 0; i < 3; i++){
-			for (int j = 0; j < 3; j++){
+		String[][] temp = new String[face.length][face[0].length];
+		for (int i = 0; i < temp.length; i++){
+			for (int j = 0; j < temp[i].length; j++){
 				temp[j][i] = face[i][j];
 			}
 		}
 		return temp;
 	}
 
+	/**Takes an array and puts it in reverse order ie if the 
+	 * array is {1,5,9,10,11} the output is {11,10,9,5,1}
+	 * 
+	 * @param row The row to reverse
+	 * @return The reverse of the row
+	 */
+	public static String[] reverseRow(String[] row){
+		String[] temp = new String[row.length];
+		for(int i = 0; i<temp.length;i++){
+			temp[i] = row[(row.length-1)-i];
+		}
+		return temp;
+	}
 	public static void main(final String[] args) {
 		/**System.out.println("Base Face 0 (Top)");
 		printFace(cube[0]);
@@ -485,18 +611,74 @@ public class Cube {
 			System.out.print(simpSolution[i] + " ");
 		}
 		System.out.println();
-		*/
 		System.out.println("Test printCube");
-		printCube(cube);
+		printCube(cubeColor);
 		System.out.println();
-		String[][][] testCube = rotateCube(cube, true, 1);
-		System.out.println("Test Rotate Cube");
+		String[][][] testCube = rotateCube(cubeColor, false, 4);
+		System.out.println("Test Rotate Cube with cubeColor");
 		printCube(testCube);
 		System.out.println();
-		/**printFace(cube[1]);
+		printFace(cube[1]);
 		System.out.println("Test transposeFace");
 		String[][] testFace = transposeFace(cube[1]);
-		printFace(testFace); 
+		printFace(testFace);
+		System.out.println("Test Rotate Cube with cubeColorCorners"); 
+		boolean cw = false;
+		int x = 10;
+		switch (x){
+			case 1:
+			System.out.println("Testing Case 1: CW Green Face");
+			cw = true;
+			break;
+			case 2:
+			System.out.println("Testing Case 2: CW Red Face");
+			cw = true;
+			break;
+			case 3:
+			System.out.println("Testing Case 3: CW Blue Face");
+			cw = true;
+			break;
+			case 4:
+			System.out.println("Testing Case 4: CW Orange Face");
+			cw = true;
+			break;
+			case 5:
+			System.out.println("Testing Case 5: CW Yellow Face");
+			cw = true;
+			break;
+			case 6:
+			System.out.println("Testing Case 6: CW White Face");
+			cw = true;
+			break;
+			case 7:
+			System.out.println("Testing Case 7: CCW Green Face");
+			cw = false;
+			break;
+			case 8:
+			System.out.println("Testing Case 8: CCW Red Face");
+			cw = false;
+			break;
+			case 9:
+			System.out.println("Testing Case 9: CCW Blue Face");
+			cw = false;
+			break;
+			case 10:
+			System.out.println("Testing Case 10: CCW Orange Face");
+			cw = false;
+			break;
+			case 11:
+			System.out.println("Testing Case 11: CCW Yellow Face");
+			cw = false;
+			break;
+			case 12:
+			System.out.println("Testing Case 12: CCW White Face");
+			cw = false;
+			break;
+		}
+		x %= 6;
+		String[][][] testCube = rotateCube(cubeColorCorners, cw, x);
+		printCube(testCube);
+		System.out.println();
 		*/
 	}
 
