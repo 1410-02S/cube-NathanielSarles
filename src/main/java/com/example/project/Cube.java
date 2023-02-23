@@ -6,32 +6,32 @@ public class Cube {
 	static String[][][] cube = {
 		{
 			{"01","02","03"},
-			{"04","05","06"},
+			{"04","W","06"},
 			{"07","08","09"}
 		},
 		{
 			{"11","12","13"},
-			{"14","15","16"},
+			{"14","G","16"},
 			{"17","18","19"}
 		},
 		{
 			{"21","22","23"},
-			{"24","25","26"},
+			{"24","R","26"},
 			{"27","28","29"}
 		},
 		{
 			{"31","32","33"},
-			{"34","35","36"},
+			{"34","B","36"},
 			{"37","38","39"}
 		},
 		{
 			{"41","42","43"},
-			{"44","45","46"},
+			{"44","O","46"},
 			{"47","48","49"}
 		},
 		{
 			{"51","52","53"},
-			{"54","55","56"},
+			{"54","Y","56"},
 			{"57","58","59"}
 		}
 	};
@@ -81,6 +81,19 @@ public class Cube {
 		return temp;
 	}
 
+	/**Swaps rows/cols between faces so that the sides of the rotated
+	 * face are what they were before the rotation 
+	 * 
+	 * (ie for a solved cube if you rotated the white face clockwise
+	 * the row/cols of the faces adjacent to will recieve a row/col
+	 * of the face to its right. For the cube I'm using to model this
+	 * that means that green<-red<-blue<-orange<-green )
+	 * 
+	 * @param c The whole cube
+	 * @param clockwise Which direction the face was rotated
+	 * @param index The index of the rotated face
+	 * @return The entire cube with the sides fixed
+	 */
 	public static String[][][] rotateSide(String[][][] c, boolean clockwise, int index){
 		int[] sides = new int[4];
 		int[] sideRowIndex = new int[4];
@@ -90,17 +103,120 @@ public class Cube {
 			case 0:
 				for (int i = 0; i < 4; i++){
 					sides[i] = i+1;
-					sideRowIndex[i] = 1;
+					sideRowIndex[i] = 0;
 				}
 				break;
+			case 1:
+			sides[0] = 0;
+			sides[1] = 4;
+			sides[2] = 5;
+			sides[3] = 2;
+			for (int i = 0; i < 4; i++){
+				if (i==0||i == 3){
+					sideRowIndex[i] = 2;
+					if(i==3){
+						transposeSide[i]=true;
+					}
+				} else{
+					sideRowIndex[i] = 0;
+					if(i==1){
+						transposeSide[i]=true;
+					}
+				}
+			}
+			break;
+			case 2:
+			sides[0] = 0;
+			sides[1] = 1;
+			sides[2] = 5;
+			sides[3] = 3;
+			for (int i = 0; i < 4; i++){
+				transposeSide[i] = true;
+				if (i != 3){
+					sideRowIndex[i] = 2;
+				} else{
+					sideRowIndex[i] = 0;
+				}
+			}
+			break;
+			case 3:
+			sides[0] = 0;
+			sides[1] = 2;
+			sides[2] = 5;
+			sides[3] = 4;
+			for (int i = 0; i < 4; i++){
+				if (i==0||i == 3){
+					sideRowIndex[i] = 0;
+					if(i==3){
+						transposeSide[i]=true;
+					}
+				} else{
+					sideRowIndex[i] = 2;
+					if(i==1){
+						transposeSide[i]=true;
+					}
+				}
+			}
+			break;
+			case 4:
+			sides[0] = 0;
+			sides[1] = 3;
+			sides[2] = 5;
+			sides[3] = 1;
+			for (int i = 0; i < 4; i++){
+				transposeSide[i] = true;
+				if (i != 1){
+					sideRowIndex[i] = 0;
+				} else{
+					sideRowIndex[i] = 2;
+				}
+			}
 			case 5:
 				for (int i = 0; i < 4; i++){
-					sides[i] = i+1;
-					sideRowIndex[i] = 3;
+					sides[i] = 4-i;
+					sideRowIndex[i] = 2;
 				}
 				break;
 		}
-		return null;
+		for(int i = 0; i < transposeSide.length; i++){
+			if(transposeSide[i]){
+				c[sides[i]] = transposeFace(c[sides[i]]);
+			}
+		}
+		if(clockwise){
+			temp = c[sides[0]][sideRowIndex[0]];
+			c[sides[0]][sideRowIndex[0]] = c[sides[1]][sideRowIndex[1]];
+			c[sides[1]][sideRowIndex[1]] = c[sides[2]][sideRowIndex[2]];
+			c[sides[2]][sideRowIndex[2]] = c[sides[3]][sideRowIndex[3]];
+			c[sides[3]][sideRowIndex[3]] = temp;
+		} else{
+			temp = c[sides[3]][sideRowIndex[3]];
+			c[sides[3]][sideRowIndex[3]] = c[sides[2]][sideRowIndex[2]];
+			c[sides[2]][sideRowIndex[2]] = c[sides[1]][sideRowIndex[1]];
+			c[sides[1]][sideRowIndex[1]] = c[sides[0]][sideRowIndex[0]];
+			c[sides[0]][sideRowIndex[0]] = temp;
+		}
+		for(int i = 0; i < transposeSide.length; i++){
+			if(transposeSide[i]){
+				c[sides[i]] = transposeFace(c[sides[i]]);
+			}
+		}
+		return c;
+	}
+
+	/**Basically just here to call rotateFace and rotateSide at the
+	 * same time with the same things so I don't have to type more
+	 * later.
+	 * 
+	 * @param c The cube
+	 * @param clockwise the direction to rotate
+	 * @param index The face to rotate
+	 * @return The cube after being rotated
+	 */
+	public static String[][][] rotateCube(String[][][] c, boolean clockwise, int index){
+		c[index] = rotateFace(c[index], clockwise);
+		c = rotateSide(c, clockwise, index);
+		return c;
 	}
 
 	/**Swaps the given rows of the given face.
@@ -331,17 +447,17 @@ public class Cube {
 	 * @return The transpose of face.
 	 */
 	public static String[][] transposeFace(String[][] face){
-		String[][] temp = face;
-		for (int i = 0; i < face.length; i++){
-			for (int j = 0; j < face[i].length; j++){
-				temp[i][j] = face[j][i];
+		String[][] temp = new String[3][3];
+		for (int i = 0; i < 3; i++){
+			for (int j = 0; j < 3; j++){
+				temp[j][i] = face[i][j];
 			}
 		}
 		return temp;
 	}
 
 	public static void main(final String[] args) {
-		System.out.println("Base Face 0 (Top)");
+		/**System.out.println("Base Face 0 (Top)");
 		printFace(cube[0]);
 		System.out.println("Base Face 1 (Front)");
 		printFace(cube[1]);
@@ -369,8 +485,19 @@ public class Cube {
 			System.out.print(simpSolution[i] + " ");
 		}
 		System.out.println();
+		*/
 		System.out.println("Test printCube");
 		printCube(cube);
+		System.out.println();
+		String[][][] testCube = rotateCube(cube, true, 1);
+		System.out.println("Test Rotate Cube");
+		printCube(testCube);
+		System.out.println();
+		/**printFace(cube[1]);
+		System.out.println("Test transposeFace");
+		String[][] testFace = transposeFace(cube[1]);
+		printFace(testFace); 
+		*/
 	}
 
 }
