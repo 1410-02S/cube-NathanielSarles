@@ -3,7 +3,12 @@ import java.util.Random;
 import java.util.ArrayList;
 
 public class Cube {
+	
+	//There might be some returns I can remove
+	//because Arrays are should be pass by refernce.
+
 	static String[][][] cube = {
+		//Used to test rotateFace and rotateSide
 		{
 			{"01","02","03"},
 			{"04","W","06"},
@@ -37,6 +42,8 @@ public class Cube {
 	};
 
 	static String[][][] cubeColor = {
+		//What's actually likely to be used for play
+		//Might add an option to use cubeColorCorner instead
 		{
 			{"w","w","w"},
 			{"w","W","w"},
@@ -70,7 +77,9 @@ public class Cube {
 	};
 
 	static String[][][] cubeColorCorners = {
-		/** The order of the colors goes like this
+		/**Used to test that each entry on the cube was
+		 * mapped correctly. 
+		 * The order of the colors goes like this
 		 * (Face)(Top/Bottom Face)(Front/Back)(Left/Right)
 		 * so the green white red corner on the red face is
 		 * rwg 
@@ -399,13 +408,15 @@ public class Cube {
 	}
 
 	/**Creates a series of random integers to be used in the 
-	 * scramble cube function.
+	 * scramble cube function. The integers exsist in the range
+	 * [1,12] and each integer corosopnds to a specific direction 
+	 * you can rotate the cube
 	 * 
 	 * @return An array of integers
 	 */
 	public static int[] scramble(){
 		Random random = new Random();
-		int[] scrambled = new int[random.nextInt(100) + 1];
+		int[] scrambled = new int[random.nextInt(50) + 1];
 		for (int i = 0; i < scrambled.length; i++){
 			scrambled[i] = random.nextInt(12) + 1;
 		}
@@ -421,11 +432,7 @@ public class Cube {
 	 * @return an array of ints showing the brute force solution
 	 */
 	public static int[] createSolution(int[] scram){
-		int[] solution = new int[scram.length];
-		for(int i = scram.length; i > 0; i--){
-			int x = scram.length - i;
-			solution[x] = scram[i-1];
-		}
+		int[] solution = reverseRowInt(scram);
 		for (int i = 0; i < solution.length; i++ ){
 			int x = solution[i];
 			switch (x){
@@ -553,6 +560,96 @@ public class Cube {
 		return simp;
 	}
 
+	//Might add another simplifySolution that Checks for
+	//when to opposite moves are done in a row.
+	//ie. U and U' done sequentially, which is the same
+	//as doing nothing.
+
+	//I made this next one because I was having trouble 
+	//translating the integers into moves for my cube
+	//so I could check that scramble cube was working 
+	//correctly.
+
+	/**Translates the scarmble and solution arrays into
+	 * normal cube directions.
+	 * 
+	 * @param solution the set of steps to be translated
+	 * @return the translated solution
+	 */
+	public static String[] translateArray(int[] solution){
+		String[] translated = new String[solution.length];
+		String step = " ";
+		for(int i = 0; i < translated.length; i++){
+			switch(solution[i]){
+			case 1:
+			step = "F";
+			break;
+			case 2:
+			step = "R";
+			break;
+			case 3:
+			step = "B";
+			break;
+			case 4:
+			step = "L";
+			break;
+			case 5:
+			step = "D";
+			break;
+			case 6:
+			step = "U";
+			break;
+			case 7:
+			step = "F'";
+			break;
+			case 8:
+			step = "R'";
+			break;
+			case 9:
+			step = "B'";
+			break;
+			case 10:
+			step = "L'";
+			break;
+			case 11:
+			step = "D'";
+			break;
+			case 12:
+			step = "U'";
+			break;
+			}
+			translated[i] = step;
+		}
+		return translated;
+	} 
+
+	/**Takes the given cube and scrambles it according to the
+	 * given directions. Can also be used to solve a scrambled 
+	 * cube if given a valid series of steps to reach it.
+	 * 
+	 * @param c cube to be scrambled
+	 * @param scram list of directions for scrambling
+	 * this is an array of ints numbered 1-12
+	 * if the int is > 6 CCW, int % 6 is the index
+	 * of the face being rotated.
+	 * @return the scrambled cube
+	 */
+	public static String[][][] scrambleCube(String[][][] c, int[] scram){
+		int x = 0;
+		boolean cw = false;
+		for(int i = 0; i < scram.length; i++){
+			x = scram[i];
+			if (x > 6){
+				cw = false;
+			} else{
+				cw = true;
+			}
+			x %= 6;
+			c = rotateCube(c, cw, x);
+		}
+		return c;	
+	}
+
 	/**Takes a face and returns the transpose(rows become cols) of 
 	 * the face.
 	 * 
@@ -569,8 +666,9 @@ public class Cube {
 		return temp;
 	}
 
-	/**Takes an array and puts it in reverse order ie if the 
-	 * array is {1,5,9,10,11} the output is {11,10,9,5,1}
+	/**Takes an array of strings and puts it in reverse order ie if the 
+	 * array is {"a","e","i","j","k"} the output 
+	 * is {"k","j","i","e","a"}
 	 * 
 	 * @param row The row to reverse
 	 * @return The reverse of the row
@@ -582,8 +680,30 @@ public class Cube {
 		}
 		return temp;
 	}
+
+	//There's probably a better way of doing this, but IDK it
+	//So an exact copy of my previous Method but with 
+	//int arrays is a go.
+	//All because I relized I could slightly simplify createSolution
+
+	/**Takes an array of ints and puts it in reverse order ie if the 
+	 * array is {1,5,9,10,11} the output is {11,10,9,5,1}
+	 * 
+	 * @param row The row to reverse
+	 * @return The reverse of the row
+	 */
+	public static int[] reverseRowInt(int[] row){
+		int[] temp = new int[row.length];
+		for(int i = 0; i<temp.length;i++){
+			temp[i] = row[(row.length-1)-i];
+		}
+		return temp;
+	}
+
 	public static void main(final String[] args) {
-		/**System.out.println("Base Face 0 (Top)");
+		/** And Here is all of my Testing commented out.
+		 * In no particular order.
+		System.out.println("Base Face 0 (Top)");
 		printFace(cube[0]);
 		System.out.println("Base Face 1 (Front)");
 		printFace(cube[1]);
@@ -599,11 +719,33 @@ public class Cube {
 			System.out.print(scramble[i] + " ");
 		}
 		System.out.println();
+		System.out.println("Translated Scramble");
+		String[] translateScramble = translateArray(scramble);
+		for(int i = 0; i < translateScramble.length; i++){
+			System.out.print(translateScramble[i] + " ");
+		}
+		System.out.println();
+		System.out.println("Test scrambleCube");
+		System.out.println();
+		String[][][] scrambled = cubeColorCorners;
+		scrambleCube(scrambled, scramble);
+		printCube(scrambled);
+		System.out.println();
 		System.out.println("Test createSolution");
 		int[] solution = createSolution(scramble);
 		for(int i = 0; i < solution.length; i++){
 			System.out.print(solution[i] + " ");
 		}
+		System.out.println();
+		System.out.println("Translated Solution");
+		String[] translateSolution = translateArray(solution);
+		for(int i = 0; i < translateSolution.length; i++){
+			System.out.print(translateSolution[i] + " ");
+		}
+		System.out.println();
+		System.out.println("Test solution");
+		scrambleCube(scrambled, solution);
+		printCube(scrambled);
 		System.out.println();
 		System.out.println("Test simplifySolution");
 		int[] simpSolution = simplifySolution(solution);
