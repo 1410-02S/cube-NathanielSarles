@@ -1,6 +1,9 @@
 package com.example.project;
 import java.util.Random;
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Cube {
 	
@@ -701,6 +704,131 @@ public class Cube {
 	}
 
 	public static void main(final String[] args) {
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			boolean argsCheck = false;
+			boolean cont = true;
+        	short argsRunIndex = 0;
+			String[][][] cubeInPlay = cubeColor;
+			ArrayList<Integer> solution = new ArrayList<Integer>();
+			String input = "Q";
+			if(args.length > 0){
+				argsCheck = true;
+			}
+			while(cont){
+				System.out.println();
+				printCube(cubeInPlay);
+				System.out.println("Input S to scramble the Cube, P to display the current solution, T to solve using the current solution, and Q to quit.");
+				System.out.println("Input the following to rotate the cube in the corresponding directions:");
+				System.out.println("\"U\": Top Face(W) Clockwise\n\"F\": Front Face(G) Clockwise\n\"R\": Right Face(R) Clockwise\n"+ 
+				"\"B\": Back Face(B) Clockwise\n\"L\": Left Face(O) Clockwise\n\"D\": Bottom Face(Y) Clockwise");
+				System.out.println("To rotate counter clockwise add a \" ' \". IE U' roatates the Top Face(W) CounterClockwise");
+
+				if(!argsCheck){
+					input = reader.readLine();
+				}else{
+					if(argsRunIndex == args.length){
+						argsCheck=false;
+						input = "P";
+					}else{
+						input = args[argsRunIndex];
+						argsRunIndex++;
+					}
+				}
+
+				switch(input.toUpperCase()){
+					case "S":
+					int[] scram = scramble();
+					int[] scramSol = simplifySolution(createSolution(scram));
+					scrambleCube(cubeInPlay, scram);
+					for(int i = 0; i<scramSol.length; i++){
+						solution.add(0,scramSol[(scramSol.length-1)-i]);
+					}
+					break;
+					case "Q":
+					cont = false;
+					break;
+					case "P":
+					System.out.println("The current solution is:");
+					int[] sol = new int[solution.size()];
+					for(int i = 0; i < solution.size(); i++){
+						sol[i] = solution.get(i);
+					}
+					String [] simpSol = translateArray(simplifySolution(sol));
+					for(int i = 0; i < simpSol.length; i++){
+						System.out.print(simpSol[i]+" ");
+					}
+					System.out.println();
+					break;
+					case "T":
+					int[] solT = new int[solution.size()];
+					for(int i = 0; i < solution.size(); i++){
+						solT[i] = solution.get(i);
+					}
+					scrambleCube(cubeInPlay, simplifySolution(solT));
+					solution.clear();
+					break;
+					case "U":
+					rotateCube(cubeInPlay, true, 0);
+					solution.add(0,12);
+					break;
+					case "F":
+					rotateCube(cubeInPlay, true, 1);
+					solution.add(0,7);
+					break;
+					case "R":
+					rotateCube(cubeInPlay, true, 2);
+					solution.add(0,8);
+					break;
+					case "B":
+					rotateCube(cubeInPlay, true, 3);
+					solution.add(0,9);
+					break;
+					case "L":
+					rotateCube(cubeInPlay, true, 4);
+					solution.add(0,10);
+					break;
+					case "D":
+					rotateCube(cubeInPlay, true, 5);
+					solution.add(0,11);
+					break;
+					case "U'":
+					rotateCube(cubeInPlay, false, 0);
+					solution.add(0,6);
+					break;
+					case "F'":
+					rotateCube(cubeInPlay, false, 1);
+					solution.add(0,1);
+					break;
+					case "R'":
+					rotateCube(cubeInPlay, false, 2);
+					solution.add(0,2);
+					break;
+					case "B'":
+					rotateCube(cubeInPlay, false, 3);
+					solution.add(0,3);
+					break;
+					case "L'":
+					rotateCube(cubeInPlay, false, 4);
+					solution.add(0,4);
+					break;
+					case "D'":
+					rotateCube(cubeInPlay, false, 5);
+					solution.add(0,5);
+					break;
+					default:
+					System.out.println("You must input one of the commands.");
+
+				}
+			}
+			System.out.println("Thanks for playing!");
+		} catch (Exception IOException) {
+			// TODO: handle exception
+		}
+		
+
+
+
 		/** And Here is all of my Testing commented out.
 		 * In no particular order.
 		System.out.println("Base Face 0 (Top)");
@@ -713,6 +841,7 @@ public class Cube {
 		String[][] test2 = rotateFace(cube[1], false);
 		System.out.println("Test Counter Clockwise Face 1");
 		printFace(test2);
+
 		System.out.println("Test scramble");
 		int[] scramble = scramble();
 		for(int i = 0; i < scramble.length; i++){
@@ -752,18 +881,22 @@ public class Cube {
 		for(int i = 0; i < simpSolution.length; i++){
 			System.out.print(simpSolution[i] + " ");
 		}
+
 		System.out.println();
 		System.out.println("Test printCube");
 		printCube(cubeColor);
 		System.out.println();
+
 		String[][][] testCube = rotateCube(cubeColor, false, 4);
 		System.out.println("Test Rotate Cube with cubeColor");
 		printCube(testCube);
 		System.out.println();
 		printFace(cube[1]);
+
 		System.out.println("Test transposeFace");
 		String[][] testFace = transposeFace(cube[1]);
 		printFace(testFace);
+
 		System.out.println("Test Rotate Cube with cubeColorCorners"); 
 		boolean cw = false;
 		int x = 10;
