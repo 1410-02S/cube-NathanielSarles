@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 public class Cube {
 	
 	//There might be some returns I can remove
-	//because Arrays are should be pass by refernce.
+	//because Arrays are/should be pass by refernce.
 
 	static String[][][] cube = {
 		//Used to test rotateFace and rotateSide
@@ -429,7 +429,8 @@ public class Cube {
 	/**Takes the instructions used to scramble the cube and
 	 * reverses it then inverts it. This creates the long brute
 	 * force way of solving the cube, that is doing the opposite
-	 * of what was done to it.
+	 * of what was done to it. Can also be used to turn the solution
+	 * into the instructions for scrambling.
 	 * 
 	 * @param scram the instructions used to scramble the cube
 	 * @return an array of ints showing the brute force solution
@@ -703,8 +704,7 @@ public class Cube {
 		return temp;
 	}
 
-	public static void main(final String[] args) {
-		try {
+	public static void main(final String[] args) throws IOException {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			boolean argsCheck = false;
 			boolean cont = true;
@@ -716,26 +716,27 @@ public class Cube {
 				argsCheck = true;
 			}
 			while(cont){
-				System.out.println();
-				printCube(cubeInPlay);
-				System.out.println("Input S to scramble the Cube, P to display the current solution, T to solve using the current solution, and Q to quit.");
-				System.out.println("Input the following to rotate the cube in the corresponding directions:");
-				System.out.println("\"U\": Top Face(W) Clockwise\n\"F\": Front Face(G) Clockwise\n\"R\": Right Face(R) Clockwise\n"+ 
-				"\"B\": Back Face(B) Clockwise\n\"L\": Left Face(O) Clockwise\n\"D\": Bottom Face(Y) Clockwise");
-				System.out.println("To rotate counter clockwise add a \" ' \". IE U' roatates the Top Face(W) CounterClockwise");
+				if (!argsCheck){
+					System.out.println();
+					printCube(cubeInPlay);
+					System.out.println("Input S to scramble the Cube, P to display the current solution, T to solve using the current solution, and Q to quit.");
+					System.out.println("Input the following to rotate the cube in the corresponding directions:");
+					System.out.println("\"U\": Top Face(W) Clockwise\n\"F\": Front Face(G) Clockwise\n\"R\": Right Face(R) Clockwise\n"+ 
+					"\"B\": Back Face(B) Clockwise\n\"L\": Left Face(O) Clockwise\n\"D\": Bottom Face(Y) Clockwise");
+					System.out.println("To rotate counter clockwise add a \" ' \". IE U' roatates the Top Face(W) CounterClockwise");
+				}
 
 				if(!argsCheck){
 					input = reader.readLine();
 				}else{
 					if(argsRunIndex == args.length){
 						argsCheck=false;
-						input = "P";
+						input = "~";
 					}else{
 						input = args[argsRunIndex];
 						argsRunIndex++;
 					}
 				}
-
 				switch(input.toUpperCase()){
 					case "S":
 					int[] scram = scramble();
@@ -816,14 +817,14 @@ public class Cube {
 					rotateCube(cubeInPlay, false, 5);
 					solution.add(0,5);
 					break;
+					case "~":
+					break;
 					default:
 					System.out.println("You must input one of the commands.");
 
 				}
 			}
 			System.out.println("Thanks for playing!");
-		} catch (Exception IOException) {
-			// TODO: handle exception
 		}
 		
 
@@ -956,6 +957,4 @@ public class Cube {
 		System.out.println();
 		*/
 	}
-
-}
 
