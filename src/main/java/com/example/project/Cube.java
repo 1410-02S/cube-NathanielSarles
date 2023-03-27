@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+//Looks Great! Not much more to say!
+
 public class Cube {
 	
 	//There might be some returns I can remove
